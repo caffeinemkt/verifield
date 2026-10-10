@@ -1,0 +1,17 @@
+{
+  "name": "Verifield - Control de Asistencia y Nómina",
+  "short_name": "Verifield",
+  "description": "Plataforma Verifield de Asistencia Offline-First, Regulación 40 Horas y Pre-Nómina para Green Seven México",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
