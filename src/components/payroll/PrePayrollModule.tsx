@@ -169,9 +169,68 @@ export const PrePayrollModule: React.FC<PrePayrollModuleProps> = ({ payrollItems
         </div>
       </div>
 
-      {/* Pre-Payroll Table */}
+      {/* Pre-Payroll Module Container */}
       <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
+        {/* Mobile View: Clean Pre-Payroll Cards */}
+        <div className="block sm:hidden divide-y divide-slate-100">
+          {filteredItems.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-400">
+              No se encontraron colaboradores con los filtros seleccionados.
+            </div>
+          ) : (
+            filteredItems.map(item => (
+              <div key={item.user_id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h5 className="text-xs font-bold text-slate-900">{item.full_name}</h5>
+                    <p className="text-[11px] text-slate-500 font-mono">
+                      {item.employee_number} • {item.department}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-slate-400 block font-medium">Neto a pagar:</span>
+                    <span className="font-mono font-extrabold text-emerald-700 text-sm">
+                      ${item.net_payable_mxn.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px]">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Días / Salario</span>
+                    <span className="font-bold text-slate-800">{item.regular_days_worked}d</span>
+                    <span className="text-[10px] text-slate-500 block font-mono">${item.daily_salary_mxn.toFixed(0)}/d</span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Faltas / Retardos</span>
+                    <span className="font-medium text-slate-700">
+                      {item.justified_absences + item.unjustified_absences} F / {item.tardiness_count} R
+                    </span>
+                    {item.total_deductions_mxn > 0 && (
+                      <span className="text-[10px] text-rose-600 font-mono block">
+                        -${item.total_deductions_mxn.toFixed(0)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Horas Extras</span>
+                    <span className="font-semibold text-blue-700">
+                      {item.overtime_double_hours + item.overtime_triple_hours} hrs
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono block">
+                      ${(item.overtime_double_total_mxn + item.overtime_triple_total_mxn).toFixed(0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View: Full 10-column Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
               <tr>

@@ -65,8 +65,8 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
     <div className="w-full space-y-4">
       {/* NOM-151 Verification Modal */}
       {verifyingRecord && verificationResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl p-6 shadow-xl border border-slate-200/80 w-full max-w-md space-y-4 animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-3 sm:p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200/80 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
@@ -80,7 +80,7 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
               <button
                 type="button"
                 onClick={() => setVerifyingRecord(null)}
-                className="text-slate-400 hover:text-slate-600 text-sm"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 text-sm"
               >
                 ✕
               </button>
@@ -141,7 +141,7 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
             <button
               type="button"
               onClick={() => setVerifyingRecord(null)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition"
+              className="w-full min-h-[44px] py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition active:scale-[0.98]"
             >
               Cerrar
             </button>
@@ -150,7 +150,7 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
       )}
 
       {/* Header Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-slate-900">Historial de Asistencias</h3>
           <p className="text-xs text-slate-500">
@@ -166,7 +166,7 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
           <select
             value={filterType}
             onChange={e => setFilterType(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 font-medium focus:outline-none cursor-pointer"
+            className="h-9 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-slate-700 font-medium focus:outline-none cursor-pointer"
           >
             <option value="all">Todos</option>
             <option value="check_in">Entrada</option>
@@ -178,7 +178,7 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
       </div>
 
       {/* Records Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
         {userRecords.map(rec => {
           const statusBadge =
             rec.status === 'puntual'
@@ -192,7 +192,7 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
           return (
             <div
               key={rec.id}
-              className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs hover:border-slate-300 transition space-y-3 flex flex-col justify-between"
+              className="bg-white rounded-2xl border border-slate-200/80 p-3.5 sm:p-4 shadow-xs hover:border-slate-300 transition space-y-3 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 {/* Photo Thumbnail + Event tag */}
@@ -236,18 +236,18 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
                   href={`https://www.google.com/maps?q=${rec.latitude},${rec.longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                  className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] text-blue-700 bg-blue-50/80 hover:bg-blue-100 font-medium transition active:scale-95"
                   title="Abrir coordenadas en Google Maps"
                 >
                   <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                  <span>Ver en Google Maps ↗</span>
+                  <span>Google Maps ↗</span>
                 </a>
 
                 {/* Single-click NOM-151 Verifier */}
                 <button
                   type="button"
                   onClick={() => handleVerify(rec)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition"
+                  className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition active:scale-95"
                   title="Verificar validez NOM-151 ante la STPS"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />

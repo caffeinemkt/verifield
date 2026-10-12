@@ -198,10 +198,10 @@ export const CameraWatermark: React.FC<CameraWatermarkProps> = ({
             type="button"
             onClick={captureWithWatermark}
             disabled={isProcessing}
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-[0.99] disabled:opacity-50 shadow-sm"
+            className="w-full min-h-[46px] py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 shadow-sm cursor-pointer"
           >
-            <Camera className="w-4 h-4" />
-            {isProcessing ? 'Procesando...' : 'Tomar Foto'}
+            <Camera className="w-4 h-4 text-emerald-400" />
+            {isProcessing ? 'Procesando marca de agua...' : 'Tomar Foto Testimonial'}
           </button>
         </div>
       )}

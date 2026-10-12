@@ -262,7 +262,7 @@ export const GeofenceMapPicker: React.FC<GeofenceMapPickerProps> = ({
                 handleSearchAddress();
               }
             }}
-            className="w-full pl-8 pr-3 py-1.5 bg-white rounded-lg border border-slate-200 text-xs focus:outline-hidden focus:border-emerald-500 transition"
+            className="w-full pl-8 pr-3 min-h-[40px] py-2 bg-white rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:border-emerald-500 transition"
           />
         </div>
 
@@ -270,7 +270,7 @@ export const GeofenceMapPicker: React.FC<GeofenceMapPickerProps> = ({
           type="button"
           onClick={() => handleSearchAddress()}
           disabled={isSearching}
-          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shrink-0"
+          className="min-h-[40px] px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1 transition active:scale-95 shrink-0 shadow-xs cursor-pointer"
         >
           {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
           <span>Buscar</span>
@@ -281,7 +281,7 @@ export const GeofenceMapPicker: React.FC<GeofenceMapPickerProps> = ({
           onClick={handleUseCurrentLocation}
           disabled={isLocating}
           title="Colocar pin en mi ubicación actual"
-          className="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium flex items-center gap-1 transition shrink-0"
+          className="min-h-[40px] px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-medium flex items-center gap-1 transition active:scale-95 shrink-0 cursor-pointer"
         >
           {isLocating ? <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" /> : <Crosshair className="w-3.5 h-3.5 text-emerald-600" />}
           <span className="hidden sm:inline">Mi GPS</span>

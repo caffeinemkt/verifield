@@ -90,35 +90,35 @@ export const IncidentsModule: React.FC<IncidentsModuleProps> = ({
   return (
     <div className="w-full space-y-4">
       {/* Vacation Balance Hero Card (Worky Style) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 sm:gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-            <Palmtree className="w-6 h-6" />
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+            <Palmtree className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
-            <div className="text-xs font-semibold text-emerald-700">Vacaciones Dignas (LFT)</div>
-            <h3 className="text-xl font-bold text-slate-900">
+            <div className="text-[11px] sm:text-xs font-semibold text-emerald-700">Vacaciones Dignas (LFT)</div>
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900">
               {vacationDaysAvailable} días disponibles
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] sm:text-xs text-slate-500">
               {currentUser.full_name} • {vacationStats.yearsOfSeniority} años de antigüedad
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 text-center">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+          <div className="flex-1 sm:flex-initial bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 text-center">
             <span className="text-[10px] text-slate-400 block">Por Ley</span>
             <span className="text-sm font-bold text-slate-800">{vacationStats.statutoryVacationDays}d</span>
           </div>
-          <div className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 text-center">
+          <div className="flex-1 sm:flex-initial bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 text-center">
             <span className="text-[10px] text-slate-400 block">Tomados</span>
             <span className="text-sm font-bold text-amber-600">{vacationsUsed}d</span>
           </div>
           <button
             type="button"
             onClick={() => setShowNewModal(true)}
-            className="py-2 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 transition ml-2"
+            className="w-full sm:w-auto min-h-[40px] py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer mt-1 sm:mt-0"
           >
             <Plus className="w-4 h-4" />
             Nueva Solicitud
@@ -126,16 +126,16 @@ export const IncidentsModule: React.FC<IncidentsModuleProps> = ({
         </div>
       </div>
 
-      {/* Incidents Table */}
+      {/* Incidents Module */}
       <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between">
           <h4 className="text-xs font-bold text-slate-900">Historial de Solicitudes</h4>
           <div className="flex items-center gap-2 text-xs">
             <span className="text-slate-400">Estatus:</span>
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value as 'all' | IncidentStatus)}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 text-xs focus:outline-none cursor-pointer"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-700 text-xs focus:outline-none cursor-pointer"
             >
               <option value="all">Todas</option>
               <option value="pendiente">Pendientes</option>
@@ -145,7 +145,84 @@ export const IncidentsModule: React.FC<IncidentsModuleProps> = ({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile View: Intuitive Cards for Phone Screens */}
+        <div className="block sm:hidden divide-y divide-slate-100">
+          {filteredIncidents.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-400">
+              No hay solicitudes registradas con este filtro.
+            </div>
+          ) : (
+            filteredIncidents.map(inc => {
+              const labelCfg = INCIDENT_LABELS[inc.type];
+              return (
+                <div key={inc.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h5 className="text-xs font-bold text-slate-900">{inc.user_name}</h5>
+                      <p className="text-[11px] text-slate-500">
+                        {inc.start_date} al {inc.end_date} ({inc.days_count}d)
+                      </p>
+                    </div>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize shrink-0 ${
+                        inc.status === 'aprobada'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : inc.status === 'rechazada'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}
+                    >
+                      {inc.status}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                    <span className={`px-2 py-0.5 rounded-full font-medium border ${labelCfg.badge}`}>
+                      {labelCfg.label}
+                    </span>
+                    {inc.document_name && (
+                      <span className="inline-flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full text-[10px]">
+                        <FileCheck className="w-3 h-3" />
+                        {inc.document_name}
+                      </span>
+                    )}
+                  </div>
+
+                  {inc.comments && (
+                    <p className="text-[11px] text-slate-600 italic bg-slate-50 rounded-lg p-2">
+                      &quot;{inc.comments}&quot;
+                    </p>
+                  )}
+
+                  {/* Actions for Manager/Admin on Mobile */}
+                  {isManagerOrAdmin && inc.status === 'pendiente' && (
+                    <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => onUpdateStatus(inc.id, 'aprobada', currentUser.full_name)}
+                        className="flex-1 min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 transition active:scale-95 shadow-xs"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        Aprobar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onUpdateStatus(inc.id, 'rechazada', currentUser.full_name)}
+                        className="flex-1 min-h-[38px] rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-1 transition active:scale-95 shadow-xs"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        Rechazar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop View: Full Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-[11px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
               <tr>
@@ -204,7 +281,7 @@ export const IncidentsModule: React.FC<IncidentsModuleProps> = ({
                             <button
                               type="button"
                               onClick={() => onUpdateStatus(inc.id, 'aprobada', currentUser.full_name)}
-                              className="p-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                              className="p-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white transition active:scale-95"
                               title="Aprobar"
                             >
                               <Check className="w-3.5 h-3.5" />
@@ -212,7 +289,7 @@ export const IncidentsModule: React.FC<IncidentsModuleProps> = ({
                             <button
                               type="button"
                               onClick={() => onUpdateStatus(inc.id, 'rechazada', currentUser.full_name)}
-                              className="p-1 rounded bg-rose-600 hover:bg-rose-700 text-white transition"
+                              className="p-1 rounded bg-rose-600 hover:bg-rose-700 text-white transition active:scale-95"
                               title="Rechazar"
                             >
                               <X className="w-3.5 h-3.5" />

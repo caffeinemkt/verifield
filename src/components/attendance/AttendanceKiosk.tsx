@@ -249,14 +249,14 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
                 key={evt.key}
                 type="button"
                 onClick={() => setSelectedEvent(evt.key)}
-                className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border text-center transition-all ${
+                className={`flex flex-col items-center justify-center min-h-[54px] py-2 px-1 rounded-xl border text-center transition-all duration-150 active:scale-95 ${
                   isSelected
-                    ? `${evt.activeClass} border-transparent shadow-xs font-semibold`
-                    : 'bg-slate-50 border-slate-200/70 text-slate-600 hover:bg-slate-100'
+                    ? `${evt.activeClass} border-transparent shadow-sm font-bold ring-2 ring-emerald-500/30 ring-offset-1`
+                    : 'bg-slate-50 border-slate-200/80 text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 <Icon className="w-4 h-4 mb-1" />
-                <span className="text-xs">{evt.label}</span>
+                <span className="text-[11px] sm:text-xs tracking-tight">{evt.label}</span>
               </button>
             );
           })}
@@ -288,16 +288,16 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
           type="button"
           onClick={handleSubmitPunch}
           disabled={!photoData || isSubmitting}
-          className={`w-full py-3 px-4 rounded-xl font-bold text-sm shadow-xs flex items-center justify-center gap-2 transition active:scale-[0.99] ${
+          className={`w-full min-h-[50px] py-3 px-4 rounded-xl font-bold text-sm sm:text-base shadow-sm flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] ${
             photoData && !isSubmitting
-              ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-700/20 shadow-md'
-              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-700/25 shadow-lg'
+              : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200/60'
           }`}
         >
           {isSubmitting
-            ? 'Registrando...'
+            ? 'Registrando marcaje...'
             : photoData
-            ? `Marcar ${selectedEventObj.label}`
+            ? `Registrar ${selectedEventObj.label}`
             : 'Toma la foto para marcar'}
         </button>
       </div>
