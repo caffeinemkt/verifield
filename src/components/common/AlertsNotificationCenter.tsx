@@ -77,13 +77,13 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
         <>
           {/* Backdrop for click outside */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-black/25 sm:bg-transparent backdrop-blur-xs sm:backdrop-blur-none"
             onClick={() => setIsOpen(false)}
           />
 
-          <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden flex flex-col max-h-[82vh] sm:max-h-none animate-in fade-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="p-3.5 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between">
+            <div className="p-3.5 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
                   <ShieldAlert className="w-3.5 h-3.5" />
@@ -121,7 +121,7 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
             </div>
 
             {/* Quick KPI Counters */}
-            <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-100/50 border-b border-slate-100 text-xs">
+            <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-100/50 border-b border-slate-100 text-xs shrink-0">
               <div
                 onClick={() => setActiveFilter('retrasos')}
                 className={`p-2 rounded-xl border cursor-pointer transition flex items-center gap-2 ${
@@ -158,11 +158,11 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1 p-2 border-b border-slate-100 text-[11px] bg-white">
+            <div className="flex items-center gap-1 p-2 border-b border-slate-100 text-[11px] bg-white shrink-0 overflow-x-auto no-scrollbar">
               <button
                 type="button"
                 onClick={() => setActiveFilter('all')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition ${
+                className={`px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
                   activeFilter === 'all'
                     ? 'bg-slate-900 text-white font-semibold'
                     : 'text-slate-500 hover:bg-slate-100'
@@ -173,7 +173,7 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
               <button
                 type="button"
                 onClick={() => setActiveFilter('retrasos')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition ${
+                className={`px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
                   activeFilter === 'retrasos'
                     ? 'bg-amber-600 text-white font-semibold'
                     : 'text-slate-500 hover:bg-slate-100'
@@ -184,7 +184,7 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
               <button
                 type="button"
                 onClick={() => setActiveFilter('faltas')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition ${
+                className={`px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
                   activeFilter === 'faltas'
                     ? 'bg-rose-600 text-white font-semibold'
                     : 'text-slate-500 hover:bg-slate-100'
@@ -195,7 +195,7 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
             </div>
 
             {/* Alerts List */}
-            <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 text-xs">
+            <div className="flex-1 overflow-y-auto max-h-[55vh] sm:max-h-80 divide-y divide-slate-100 text-xs">
               {filteredAlerts.length === 0 ? (
                 <div className="p-6 text-center text-slate-400 text-xs">
                   <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-1.5 opacity-60" />
@@ -215,65 +215,63 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
                         !alert.read ? 'bg-amber-50/30' : ''
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-start gap-2">
-                          <span
-                            className={`mt-0.5 p-1 rounded-lg shrink-0 ${
-                              isLate
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'bg-rose-100 text-rose-700'
-                            }`}
-                          >
-                            {isLate ? (
-                              <Clock className="w-3.5 h-3.5" />
-                            ) : (
-                              <AlertTriangle className="w-3.5 h-3.5" />
+                      <div className="flex items-start gap-2.5">
+                        <span
+                          className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${
+                            isLate
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-rose-100 text-rose-700'
+                          }`}
+                        >
+                          {isLate ? (
+                            <Clock className="w-3.5 h-3.5" />
+                          ) : (
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                          )}
+                        </span>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-1.5">
+                            <h5 className="font-bold text-slate-900 text-xs break-words leading-tight">
+                              {alert.title}
+                            </h5>
+                            {!alert.read && (
+                              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0 mt-0.5" />
                             )}
-                          </span>
+                          </div>
 
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <h5 className="font-bold text-slate-900 text-xs">
-                                {alert.title}
-                              </h5>
-                              {!alert.read && (
-                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                              )}
-                            </div>
+                          <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-1 flex-wrap">
+                            <User className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="font-semibold text-slate-900">{alert.user_name}</span>
+                            <span className="text-slate-500 text-[10px]">({alert.employee_number})</span>
+                          </div>
 
-                            <div className="flex items-center gap-1 text-[11px] text-slate-600 mt-0.5">
-                              <User className="w-3 h-3 text-slate-400" />
-                              <span className="font-semibold">{alert.user_name}</span>
-                              <span className="text-slate-400">({alert.employee_number})</span>
-                            </div>
+                          <p className="text-[11px] text-slate-600 mt-1 leading-snug break-words">
+                            {alert.description}
+                          </p>
 
-                            <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                              {alert.description}
-                            </p>
-
-                            <div className="flex items-center gap-2 mt-1.5 text-[10px] text-slate-400">
-                              <span>{alert.department}</span>
-                              <span>•</span>
-                              <span>{new Date(alert.timestamp).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} CDMX</span>
-                            </div>
+                          <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-slate-400 flex-wrap">
+                            <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-medium">{alert.department}</span>
+                            <span>•</span>
+                            <span>{new Date(alert.timestamp).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} CDMX</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Action buttons */}
-                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
                         {alert.resolved ? (
-                          <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Resuelto por {alert.resolved_by || 'Supervisor'}
+                          <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>Resuelto por {alert.resolved_by || 'Supervisor'}</span>
                           </span>
                         ) : (
                           <button
                             type="button"
                             onClick={() => onResolveAlert(alert.id, currentUserName)}
-                            className="text-emerald-700 hover:text-emerald-800 font-medium px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 transition"
+                            className="min-h-[28px] text-emerald-700 hover:text-emerald-800 font-semibold px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition active:scale-95"
                           >
-                            {isCumulativeAbsence ? 'Aplicar Descuento Pre-Nómina' : 'Justificar / Gestionar'}
+                            {isCumulativeAbsence ? 'Aplicar Descuento' : 'Justificar / Gestionar'}
                           </button>
                         )}
 
@@ -281,7 +279,7 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
                           <button
                             type="button"
                             onClick={() => onMarkAsRead(alert.id)}
-                            className="text-slate-400 hover:text-slate-600"
+                            className="text-slate-400 hover:text-slate-600 py-1 px-1.5 text-[11px] font-medium transition"
                           >
                             Marcar leída
                           </button>
