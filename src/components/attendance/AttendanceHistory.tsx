@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import {
   Clock,
   ShieldCheck,
+  ShieldAlert,
   MapPin,
   ExternalLink,
   CheckCircle2,
@@ -94,6 +95,33 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
                 <p className="text-[11px] text-emerald-700 mt-0.5">{verificationResult.details}</p>
               </div>
             </div>
+
+            {/* Anti-Tampering Forensic Details */}
+            {verifyingRecord.is_device_clock_tampered ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-amber-800">
+                  <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Alerta Forense: Reloj de Dispositivo Alterado</span>
+                </div>
+                <p className="text-[11px] text-amber-700">
+                  {verifyingRecord.tampering_mitigation || 'Intento de alteración de reloj detectado y neutralizado con hora legal NTP.'}
+                </p>
+                <div className="text-[10px] text-amber-800 pt-1 border-t border-amber-200/60 flex justify-between font-mono">
+                  <span>Reclamado por OS: {verifyingRecord.device_claimed_timestamp || 'N/A'}</span>
+                  <span>Desfase: {Math.round((verifyingRecord.clock_drift_seconds || 0) / 60)} min</span>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-xs text-slate-700 flex items-center justify-between">
+                <span className="flex items-center gap-1 text-[11px] font-medium text-slate-600">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  Sello de Tiempo: {verifyingRecord.verified_time_source || 'NTP Server + Monotonic Ticks'}
+                </span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
+                  Sin Desfase
+                </span>
+              </div>
+            )}
 
             {/* Details */}
             <div className="bg-slate-50 rounded-xl p-3 text-xs space-y-2 border border-slate-100 font-mono">
@@ -222,9 +250,17 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({
                     </span>
                   </div>
 
-                  <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>{rec.local_timestamp}</span>
+                  <div className="text-[11px] text-slate-500 flex items-center justify-between gap-1">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      <span>{rec.local_timestamp}</span>
+                    </span>
+                    {rec.is_device_clock_tampered && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 text-[9px] font-bold border border-amber-200">
+                        <ShieldAlert className="w-2.5 h-2.5 text-amber-600" />
+                        Reloj OS Corregido
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

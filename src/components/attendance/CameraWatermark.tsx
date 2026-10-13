@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { generatePhotoHash } from '@/lib/compliance/nom151';
+import { secureTimeEngine } from '@/lib/security/secure-time';
 
 interface CameraWatermarkProps {
   userId: string;
@@ -113,33 +114,46 @@ export const CameraWatermark: React.FC<CameraWatermarkProps> = ({
       ctx.fillText('TESTIGO FOTOGRÁFICO', 320, 350);
     }
 
-    // Minimalist watermark overlay
-    const nowUtc = new Date().toISOString();
-    const nowLocal = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
+    // Anti-Tampering Certified Watermark Overlay (NOM-151 / RFC 3161)
+    const { date: verifiedDate, isTampered, driftSeconds } = secureTimeEngine.getQuickVerifiedDate();
+    const nowUtc = verifiedDate.toISOString();
+    const nowLocal = verifiedDate.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
 
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
-    ctx.fillRect(0, 380, 640, 100);
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(0, 375, 640, 105);
 
-    ctx.fillStyle = '#22c55e';
-    ctx.fillRect(0, 378, 640, 2);
+    ctx.fillStyle = isTampered ? '#ef4444' : '#22c55e';
+    ctx.fillRect(0, 373, 640, 2);
 
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#10b981';
+    ctx.fillStyle = isTampered ? '#f87171' : '#10b981';
     ctx.font = 'bold 11px monospace';
-    ctx.fillText(`VERIFIELD • GREEN SEVEN MÉXICO • NOM-151`, 16, 400);
+    ctx.fillText(
+      isTampered
+        ? `VERIFIELD • HORA NTP PROTEGIDA (DESFASE DETECTADO & CORREGIDO)`
+        : `VERIFIELD • GREEN SEVEN MÉXICO • NOM-151 PSC`,
+      16,
+      395
+    );
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 12px monospace';
-    ctx.fillText(`${userName.toUpperCase()} • ${employeeNumber}`, 16, 418);
+    ctx.fillText(`${userName.toUpperCase()} • ${employeeNumber}`, 16, 414);
 
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '10px monospace';
-    ctx.fillText(`${nowLocal} (UTC: ${nowUtc.substring(11, 19)})`, 16, 436);
-    ctx.fillText(`GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`, 16, 452);
+    ctx.fillText(`${nowLocal} (UTC: ${nowUtc.substring(11, 19)})`, 16, 432);
+    ctx.fillText(`GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`, 16, 448);
 
-    ctx.fillStyle = '#f97316';
-    ctx.font = '10px monospace';
-    ctx.fillText(`ID: ${userId.slice(0, 8)} | SHA256 VALIDATED PSC`, 16, 468);
+    ctx.fillStyle = isTampered ? '#fbbf24' : '#38bdf8';
+    ctx.font = 'bold 9.5px monospace';
+    ctx.fillText(
+      isTampered
+        ? `ALERTA ANTI-TAMPERING: Desfase SO ${driftSeconds > 0 ? '+' : ''}${Math.round(driftSeconds / 60)}m neutralizado | Hora NTP Forzada`
+        : `TIEMPO INMUTABLE: Certificado por Servidor Atómico PSC NOM-151 | SHA256 VALIDATED`,
+      16,
+      465
+    );
 
     const finalDataUrl = canvas.toDataURL('image/jpeg', 0.88);
     setCapturedImage(finalDataUrl);

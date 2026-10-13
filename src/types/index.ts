@@ -39,7 +39,8 @@ export type AttendanceAlertType =
   | 'retardo_leve' 
   | 'retardo_grave' 
   | 'falta_injustificada' 
-  | 'retardos_acumulados_falta';
+  | 'retardos_acumulados_falta'
+  | 'alteracion_reloj';
 
 export interface AttendanceAlert {
   id: string;
@@ -115,6 +116,13 @@ export interface AttendanceRecord {
   hash_nom151: string; // SHA-256 of immutable tuple
   nom151_cert_id: string; // PSC TSA Receipt ID
   audit_trail_id: string;
+
+  // Anti-Tampering & Cybersecurity Fields
+  is_device_clock_tampered?: boolean;
+  clock_drift_seconds?: number;
+  device_claimed_timestamp?: string;
+  verified_time_source?: string;
+  tampering_mitigation?: string;
 }
 
 export interface OvertimeLog {

@@ -315,6 +315,7 @@ export const LiveShiftMonitor: React.FC<LiveShiftMonitorProps> = ({
               <div className="block sm:hidden divide-y divide-slate-100">
                 {alerts.map(al => {
                   const isLate = al.type === 'retardo_leve' || al.type === 'retardo_grave';
+                  const isTamper = al.type === 'alteracion_reloj';
                   return (
                     <div key={al.id} className="p-4 space-y-2.5">
                       <div className="flex items-start justify-between gap-2">
@@ -326,24 +327,28 @@ export const LiveShiftMonitor: React.FC<LiveShiftMonitorProps> = ({
                         </div>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            al.severity === 'danger'
+                            isTamper
+                              ? 'bg-purple-100 text-purple-700'
+                              : al.severity === 'danger'
                               ? 'bg-rose-100 text-rose-700'
                               : 'bg-amber-100 text-amber-700'
                           }`}
                         >
-                          {al.severity === 'danger' ? 'Grave / Falta' : 'Leve'}
+                          {isTamper ? 'Seguridad' : al.severity === 'danger' ? 'Grave / Falta' : 'Leve'}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-1.5">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-semibold text-[10px] ${
-                            isLate
+                            isTamper
+                              ? 'bg-purple-50 text-purple-800 border border-purple-200'
+                              : isLate
                               ? 'bg-amber-50 text-amber-800 border border-amber-200'
                               : 'bg-rose-50 text-rose-800 border border-rose-200'
                           }`}
                         >
-                          {isLate ? <Clock className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                          {isTamper ? <ShieldAlert className="w-3 h-3 text-purple-700" /> : isLate ? <Clock className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
                           {al.title}
                         </span>
                         {al.resolved ? (
@@ -366,7 +371,7 @@ export const LiveShiftMonitor: React.FC<LiveShiftMonitorProps> = ({
                           <button
                             type="button"
                             onClick={() => onResolveAlert(al.id, 'Supervisor')}
-                            className="w-full min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition active:scale-95 shadow-xs flex items-center justify-center gap-1"
+                            className="w-full min-h-[38px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition active:scale-95 shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
                             Justificar Incidencia
@@ -394,6 +399,7 @@ export const LiveShiftMonitor: React.FC<LiveShiftMonitorProps> = ({
                   <tbody className="divide-y divide-slate-100">
                     {alerts.map((al) => {
                       const isLate = al.type === 'retardo_leve' || al.type === 'retardo_grave';
+                      const isTamper = al.type === 'alteracion_reloj';
                       return (
                         <tr key={al.id} className="hover:bg-slate-50 transition">
                           <td className="py-2.5 px-4">
@@ -405,12 +411,14 @@ export const LiveShiftMonitor: React.FC<LiveShiftMonitorProps> = ({
                           <td className="py-2.5 px-4">
                             <span
                               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-semibold text-[10px] ${
-                                isLate
+                                isTamper
+                                  ? 'bg-purple-50 text-purple-800 border border-purple-200'
+                                  : isLate
                                   ? 'bg-amber-50 text-amber-800 border border-amber-200'
                                   : 'bg-rose-50 text-rose-800 border border-rose-200'
                               }`}
                             >
-                              {isLate ? <Clock className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                              {isTamper ? <ShieldAlert className="w-3 h-3 text-purple-700" /> : isLate ? <Clock className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
                               {al.title}
                             </span>
                           </td>
@@ -420,12 +428,14 @@ export const LiveShiftMonitor: React.FC<LiveShiftMonitorProps> = ({
                           <td className="py-2.5 px-4 text-center">
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                al.severity === 'danger'
+                                isTamper
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : al.severity === 'danger'
                                   ? 'bg-rose-100 text-rose-700'
                                   : 'bg-amber-100 text-amber-700'
                               }`}
                             >
-                              {al.severity === 'danger' ? 'Grave / Falta' : 'Leve'}
+                              {isTamper ? 'Seguridad' : al.severity === 'danger' ? 'Grave / Falta' : 'Leve'}
                             </span>
                           </td>
                           <td className="py-2.5 px-4 text-center">

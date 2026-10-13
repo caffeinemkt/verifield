@@ -9,6 +9,10 @@ import {
   CheckCircle2,
   Wifi,
   WifiOff,
+  ShieldCheck,
+  ShieldAlert,
+  Shield,
+  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import { CameraWatermark } from './CameraWatermark';
@@ -26,6 +30,7 @@ import {
 } from '@/lib/compliance/nom151';
 import { saveOfflinePunch } from '@/lib/offline/indexed-db';
 import { syncManager } from '@/lib/offline/sync-manager';
+import { secureTimeEngine } from '@/lib/security/secure-time';
 
 interface AttendanceKioskProps {
   currentUser: UserProfile;
@@ -47,6 +52,8 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
 }) => {
   const [selectedEvent, setSelectedEvent] = useState<AttendanceEventType>('check_in');
   const [photoData, setPhotoData] = useState<{ base64: string; hash: string } | null>(null);
+  const [simulatedDrift, setSimulatedDrift] = useState<number>(0);
+  const [showAuditSim, setShowAuditSim] = useState<boolean>(false);
   const [geoData, setGeoData] = useState<{
     latitude: number;
     longitude: number;
@@ -77,29 +84,17 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
     setIsSubmitting(true);
 
     try {
-      const now = new Date();
-      const timestampUtc = now.toISOString();
-      const localTimeString = now.toLocaleTimeString('es-MX', {
-        timeZone: 'America/Mexico_City',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      const localDateString = now.toLocaleDateString('es-MX', {
-        timeZone: 'America/Mexico_City',
-      });
-      const localFormatted = `${localDateString} ${localTimeString}`;
+      // 1. Obtener Hora Oficial Verificada Inmune a Manipulación de Reloj
+      const secureTime = await secureTimeEngine.getSecureVerifiedTime();
+      const timestampUtc = secureTime.timestampUtc;
+      const localFormatted = secureTime.localFormatted;
 
       let status: AttendanceStatus = 'puntual';
       let notes = '';
 
       if (selectedEvent === 'check_in') {
-        const timeHHMM = now.toLocaleTimeString('es-MX', {
-          timeZone: 'America/Mexico_City',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
-        const evalResult = evaluateEntryStatus(timeHHMM, '08:00', 15);
+        // La evaluación de retardo o puntualidad se realiza contra la hora legal verificada
+        const evalResult = evaluateEntryStatus(secureTime.localTimeHHMM, '08:00', 15);
         status = evalResult.status;
         notes = evalResult.message;
       }
@@ -107,6 +102,13 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
       if (geoData.isOutOfRange && currentUser.employee_type === 'oficina') {
         status = 'fuera_geocerca';
         notes = 'Fuera de geocerca permitida';
+      }
+
+      // Si el reloj del dispositivo fue alterado, agregar nota de auditoría forense
+      if (secureTime.isTampered) {
+        notes = notes
+          ? `${notes} | ${secureTime.verificationDetails}`
+          : secureTime.verificationDetails;
       }
 
       const nom151Hash = await generateNom151RecordHash({
@@ -146,6 +148,13 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
         hash_nom151: nom151Hash,
         nom151_cert_id: nom151CertId,
         audit_trail_id: auditTrailId,
+
+        // Campos Forenses de Ciberseguridad Anti-Tampering
+        is_device_clock_tampered: secureTime.isTampered,
+        clock_drift_seconds: secureTime.driftSeconds,
+        device_claimed_timestamp: secureTime.deviceClaimedTime,
+        verified_time_source: secureTime.source,
+        tampering_mitigation: secureTime.verificationDetails,
       };
 
       await saveOfflinePunch(newRecord);
@@ -165,6 +174,11 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
   };
 
   const selectedEventObj = EVENTS.find(e => e.key === selectedEvent) || EVENTS[0];
+
+  const handleApplySimulatedDrift = (minutes: number) => {
+    secureTimeEngine.setSimulatedDeviceDrift(minutes);
+    setSimulatedDrift(minutes);
+  };
 
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
@@ -189,6 +203,10 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
                 <span className="font-medium text-slate-800">{successReceipt.user_name}</span>
               </div>
               <div className="flex justify-between text-slate-500">
+                <span>Hora Verificada:</span>
+                <span className="font-bold text-slate-900 font-mono">{successReceipt.local_timestamp.split(' ')[1]} CDMX</span>
+              </div>
+              <div className="flex justify-between text-slate-500">
                 <span>Certificado NOM-151:</span>
                 <span className="font-mono text-emerald-700 font-medium">{successReceipt.nom151_cert_id}</span>
               </div>
@@ -196,12 +214,33 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
                 <span>Estatus:</span>
                 <span className="capitalize font-medium text-slate-800">{successReceipt.status.replace('_', ' ')}</span>
               </div>
+
+              {/* Anti-Tampering Security Status Indicator */}
+              {successReceipt.is_device_clock_tampered ? (
+                <div className="pt-2 border-t border-slate-200 text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                  <div className="font-bold flex items-center gap-1 text-[11px]">
+                    <ShieldAlert className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>Desfase de Reloj Neutralizado:</span>
+                  </div>
+                  <p className="text-[10px] mt-0.5 text-amber-700">
+                    {successReceipt.tampering_mitigation}
+                  </p>
+                </div>
+              ) : (
+                <div className="pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-emerald-700 font-medium">
+                  <span className="flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    Sello de Tiempo Certificado NTP
+                  </span>
+                  <span className="bg-emerald-100/60 px-1.5 py-0.2 rounded font-bold">Inmutable</span>
+                </div>
+              )}
             </div>
 
             <button
               type="button"
               onClick={() => setSuccessReceipt(null)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition"
+              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition active:scale-95 cursor-pointer"
             >
               Listo
             </button>
@@ -300,6 +339,70 @@ export const AttendanceKiosk: React.FC<AttendanceKioskProps> = ({
             ? `Registrar ${selectedEventObj.label}`
             : 'Toma la foto para marcar'}
         </button>
+
+        {/* Anti-Tampering Security Certificate Badge */}
+        <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+          <div className="flex items-center gap-1.5 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="flex items-center gap-1 text-slate-700">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              Sello de Tiempo NTP NOM-151
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAuditSim(!showAuditSim)}
+            className="text-[10px] text-slate-400 hover:text-slate-600 flex items-center gap-1 transition cursor-pointer"
+            title="Prueba de Ciberseguridad Anti-Tampering"
+          >
+            <SlidersHorizontal className="w-3 h-3" />
+            <span>Auditoría Reloj</span>
+          </button>
+        </div>
+
+        {/* Security Audit / Clock Drift Simulator */}
+        {showAuditSim && (
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-2 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-700 flex items-center gap-1">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+                Simulador de Alteración de Reloj
+              </span>
+              <span className="text-[10px] text-slate-500 font-mono">
+                {simulatedDrift === 0 ? 'Sin alteración (0m)' : `${simulatedDrift > 0 ? `+${simulatedDrift}` : simulatedDrift} min`}
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-snug">
+              Demuestra cómo el motor de ciberseguridad neutraliza cualquier intento de alterar la hora del dispositivo operativo (Windows/iOS/Android).
+            </p>
+            <div className="grid grid-cols-4 gap-1.5 pt-1">
+              {[
+                { label: 'Normal (0m)', val: 0 },
+                { label: '-120m (Atrás)', val: -120 },
+                { label: '-30m (Atrás)', val: -30 },
+                { label: '+60m (Adelanto)', val: 60 },
+              ].map(opt => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  onClick={() => handleApplySimulatedDrift(opt.val)}
+                  className={`py-1.5 px-1 rounded-lg text-[10px] font-semibold border transition text-center cursor-pointer ${
+                    simulatedDrift === opt.val
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {simulatedDrift !== 0 && (
+              <div className="p-1.5 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-800 font-medium">
+                ⚠️ Dispositivo desfasado intencionalmente {simulatedDrift}m. Al marcar, el sistema detectará el intento y registrará la hora legal real.
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

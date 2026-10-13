@@ -104,6 +104,26 @@ export default function Home() {
     setRecords(prev => [newRecord, ...prev]);
     refreshPendingCount();
 
+    // Detección y notificación automática de intento de alteración de reloj
+    if (newRecord.is_device_clock_tampered) {
+      const minutesDrift = Math.round((newRecord.clock_drift_seconds || 0) / 60);
+      const tamperAlert: AttendanceAlert = {
+        id: `alt-tamper-${Date.now()}`,
+        user_id: newRecord.user_id,
+        user_name: newRecord.user_name || currentUser.full_name,
+        employee_number: currentUser.employee_number,
+        department: currentUser.department,
+        type: 'alteracion_reloj',
+        severity: 'danger',
+        title: 'Intento de Hackeo de Reloj Neutralizado',
+        description: `El colaborador intentó registrar con un reloj alterado (${minutesDrift > 0 ? `+${minutesDrift}` : minutesDrift} min vs NTP). Hora corregida a la legal inmutable.`,
+        timestamp: newRecord.timestamp,
+        read: false,
+        resolved: false,
+      };
+      setAlerts(prev => [tamperAlert, ...prev]);
+    }
+
     if (
       newRecord.status === 'retardo_leve' ||
       newRecord.status === 'retardo_grave' ||

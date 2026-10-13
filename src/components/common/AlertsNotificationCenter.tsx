@@ -29,7 +29,7 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
   currentUserName,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'retrasos' | 'faltas'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'retrasos' | 'faltas' | 'seguridad'>('all');
 
   const unreadAlerts = alerts.filter((a) => !a.read);
   const unreadCount = unreadAlerts.length;
@@ -40,6 +40,9 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
   const absenceAlerts = alerts.filter(
     (a) => a.type === 'falta_injustificada' || a.type === 'retardos_acumulados_falta'
   );
+  const securityAlerts = alerts.filter(
+    (a) => a.type === 'alteracion_reloj'
+  );
 
   const filteredAlerts = alerts.filter((a) => {
     if (activeFilter === 'retrasos') {
@@ -47,6 +50,9 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
     }
     if (activeFilter === 'faltas') {
       return a.type === 'falta_injustificada' || a.type === 'retardos_acumulados_falta';
+    }
+    if (activeFilter === 'seguridad') {
+      return a.type === 'alteracion_reloj';
     }
     return true;
   });
@@ -192,6 +198,19 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
               >
                 Faltas ({absenceAlerts.length})
               </button>
+              {securityAlerts.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveFilter('seguridad')}
+                  className={`px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
+                    activeFilter === 'seguridad'
+                      ? 'bg-purple-700 text-white font-semibold'
+                      : 'text-purple-700 bg-purple-50 hover:bg-purple-100'
+                  }`}
+                >
+                  Seguridad ({securityAlerts.length})
+                </button>
+              )}
             </div>
 
             {/* Alerts List */}
@@ -206,24 +225,29 @@ export const AlertsNotificationCenter: React.FC<AlertsNotificationCenterProps> =
                 filteredAlerts.map((alert) => {
                   const isLate =
                     alert.type === 'retardo_leve' || alert.type === 'retardo_grave';
+                  const isTamper = alert.type === 'alteracion_reloj';
                   const isCumulativeAbsence = alert.type === 'retardos_acumulados_falta';
 
                   return (
                     <div
                       key={alert.id}
                       className={`p-3 transition hover:bg-slate-50 ${
-                        !alert.read ? 'bg-amber-50/30' : ''
+                        !alert.read ? (isTamper ? 'bg-purple-50/40' : 'bg-amber-50/30') : ''
                       }`}
                     >
                       <div className="flex items-start gap-2.5">
                         <span
                           className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${
-                            isLate
+                            isTamper
+                              ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                              : isLate
                               ? 'bg-amber-100 text-amber-700'
                               : 'bg-rose-100 text-rose-700'
                           }`}
                         >
-                          {isLate ? (
+                          {isTamper ? (
+                            <ShieldAlert className="w-3.5 h-3.5" />
+                          ) : isLate ? (
                             <Clock className="w-3.5 h-3.5" />
                           ) : (
                             <AlertTriangle className="w-3.5 h-3.5" />
